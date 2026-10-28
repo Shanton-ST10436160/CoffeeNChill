@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "CoffeeNChill Part 1",
+    "description": "Tests all Part 1 menu and staff-document endpoints. Set collection variable baseUrl to http://localhost:7071/api.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:7071/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Menu",
+      "item": [
+        {
+          "name": "Create menu item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Hot Drinks\",\n  \"id\": \"COF-001\",\n  \"name\": \"Espresso\",\n  \"description\": \"Single-shot espresso\",\n  \"price\": 25.0,\n  \"isAvailable\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/menu"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create returns 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Created item has ID', function () { pm.expect(pm.response.json().id).to.eql('COF-001'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get all menu items",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('List returns 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get menu by category",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu/category/Hot%20Drinks"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Category filter returns 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Every item matches category', function () { pm.response.json().forEach(x => pm.expect(x.category).to.eql('Hot Drinks')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update menu item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 28.0,\n  \"isAvailable\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/menu/Hot%20Drinks/COF-001"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Update returns 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete menu item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/menu/Hot%20Drinks/COF-001"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Delete returns 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Upload staff document (select file in Postman)",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/documents/upload",
+            "description": "Select a local PDF for the file form-data field named 'file'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Upload returns 201', function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('uploadedFileName', pm.response.json().fileName); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List staff documents",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/documents"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('List documents returns 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download staff document",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/documents/download/{{uploadedFileName}}"
+          },
+          "description": "Run after upload; uses uploadedFileName saved by the upload test.",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Download returns 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
