@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CoffeeNChill.Gateway\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="CoffeeNChill.Gateway\Middleware\GlobalExceptionMiddleware.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Data.Tables" Version="12.13.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.30.1" />
